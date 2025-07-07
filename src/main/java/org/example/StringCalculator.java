@@ -93,7 +93,7 @@ class StringCalculator {
     }
 
     private static String buildNegativesMessage(List<Integer> negatives) {
-        return "Negatives not allowed: " + negatives.stream()
+        return "Negative number(s) not allowed: " + negatives.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
     }

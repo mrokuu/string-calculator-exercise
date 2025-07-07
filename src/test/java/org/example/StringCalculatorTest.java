@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-
 class StringCalculatorTest {
 
     @Test
@@ -151,7 +150,7 @@ class StringCalculatorTest {
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Negatives not allowed: -4, -9");
+                .hasMessage("Negative number(s) not allowed: -4, -9");
     }
 
     @Test
@@ -163,7 +162,7 @@ class StringCalculatorTest {
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Negatives not allowed: -3\n'|' expected but ',' found at position 3.");
+                .hasMessage("Negative number(s) not allowed: -3\n'|' expected but ',' found at position 3.");
     }
 
     @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
@@ -221,10 +220,10 @@ class StringCalculatorTest {
 
     private static Stream<Arguments> negativeInputs() {
         return Stream.of(
-                Arguments.of("1,-2", "Negatives not allowed: -2"),
-                Arguments.of("2,-4,-9", "Negatives not allowed: -4, -9"),
-                Arguments.of("-2,-4,-9", "Negatives not allowed: -2, -4, -9"),
-                Arguments.of("-10", "Negatives not allowed: -10")
+                Arguments.of("1,-2", "Negative number(s) not allowed: -2"),
+                Arguments.of("2,-4,-9", "Negative number(s) not allowed: -4, -9"),
+                Arguments.of("-2,-4,-9", "Negative number(s) not allowed: -2, -4, -9"),
+                Arguments.of("-10", "Negative number(s) not allowed: -10")
         );
     }
 
