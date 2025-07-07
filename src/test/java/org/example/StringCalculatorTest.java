@@ -1,6 +1,7 @@
 package org.example;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,9 +10,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class StringCalculatorTest {
@@ -78,7 +78,48 @@ class StringCalculatorTest {
     @ValueSource(strings = {"1,2,",
             "1,2\n"})
     void add_shouldThrowIllegalArgumentException_whenSeparatorIsAtTheEnd(String input) {
-        // When / Then
+        // when / then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
+    @MethodSource("validInputs")
+    @DisplayName("Should return the correct sum")
+    void add_shouldReturnSum_whenCustomDelimiterSpecified(String input, int expected) {
+        // when
+        int result = StringCalculator.add(input);
+
+        // then
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should throw when delimiters are mixed")
+    void add_shouldThrowIllegalArgumentException_whenDelimitersAreMixed() {
+        // given
+        String input = "//|\n1|2,3";
+
+        // when / then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("'|' expected but ',' found at position 3.");
+    }
+
+    @Test
+    @DisplayName("Throws when the custom delimiter appears at the very end")
+    void shouldThrow_whenCustomDelimiterAtEnd() {
+        String input = "//;\n1;2;";
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @Test
+    @DisplayName("Throws when two delimiters occur consecutively (empty token)")
+    void shouldThrow_whenTwoDelimitersInARow() {
+        String input = "//|\n1||3";
         assertThatThrownBy(() -> StringCalculator.add(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Separator at end not allowed");
@@ -90,6 +131,15 @@ class StringCalculatorTest {
                 Arguments.of("11,22,33", 66),
                 Arguments.of("10,20,30,40", 100),
                 Arguments.of("10,20,30,40,50", 150)
+        );
+    }
+
+    private static Stream<Arguments> validInputs() {
+        return Stream.of(
+                Arguments.of("//;\n1;3", 4),
+                Arguments.of("//|\n1|2|3", 6),
+                Arguments.of("//#\n2#2#5", 9),
+                Arguments.of("//sep\n2sep5", 7)
         );
     }
 }

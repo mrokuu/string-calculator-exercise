@@ -1,14 +1,14 @@
 package org.example;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 class StringCalculator {
+
     private static final String DEFAULT_DELIMITER = ",";
     private static final String NEWLINE_DELIMITER = "\n";
-    private static final Pattern SPLIT_PATTERN =
+    private static final Pattern DEFAULT_SPLIT_PATTERN =
             Pattern.compile(DEFAULT_DELIMITER + "|" + NEWLINE_DELIMITER);
 
     public static int add(String input) {
@@ -16,34 +16,77 @@ class StringCalculator {
             return 0;
         }
 
-        if(input.endsWith(DEFAULT_DELIMITER) || input.endsWith(NEWLINE_DELIMITER)) {
+        if (input.startsWith("//")) {
+            return addWithCustomDelimiter(input);
+        }
+
+        if (input.endsWith(DEFAULT_DELIMITER) || input.endsWith(NEWLINE_DELIMITER)) {
             throw new IllegalArgumentException("Separator at end not allowed");
         }
 
-        List<String> tokens = splitNumbers(input);
+        return sumTokens(splitNumbers(input));
+    }
 
-        List<Integer> numbers = new ArrayList<>();
-        for (String token : tokens) {
-            String trimmed = token.trim();
-            int value = Integer.parseInt(trimmed);
-            ensureNonNegative(value);
-            numbers.add(value);
+    private static int addWithCustomDelimiter(String input) {
+        int newlineIdx = input.indexOf('\n');
+        if (newlineIdx == -1) {
+            throw new IllegalArgumentException("Missing newline after delimiter declaration");
         }
 
-        return numbers.stream()
-                .mapToInt(Integer::intValue)
-                .sum();
+        String delimiter = input.substring(2, newlineIdx);
+        if (delimiter.isEmpty()) {
+            throw new IllegalArgumentException("Delimiter cannot be empty");
+        }
+
+        String numbersPart = input.substring(newlineIdx + 1);
+
+        if (numbersPart.endsWith(delimiter)) {
+            throw new IllegalArgumentException("Separator at end not allowed");
+        }
+
+        validateDelimiterUsage(numbersPart, delimiter);
+
+        String[] tokens = numbersPart.split(Pattern.quote(delimiter));
+        return sumTokens(Arrays.asList(tokens));
+    }
+
+    private static void validateDelimiterUsage(String numbers, String delimiter) {
+        for (int i = 0; i < numbers.length(); ) {
+            if (numbers.startsWith(delimiter, i)) {
+                i += delimiter.length();
+                continue;
+            }
+            char ch = numbers.charAt(i);
+            if (Character.isDigit(ch) || ch == '-') {
+                i++;
+                continue;
+            }
+            throw new IllegalArgumentException(
+                    "'" + delimiter + "' expected but '" + ch + "' found at position " + i + "."
+            );
+        }
+    }
+
+    private static int sumTokens(List<String> tokens) {
+        int sum = 0;
+        for (String token : tokens) {
+            if (token.isBlank()) {
+                throw new IllegalArgumentException("Separator at end not allowed");
+            }
+            int value = Integer.parseInt(token.trim());
+            ensureNonNegative(value);
+            sum += value;
+        }
+        return sum;
     }
 
     private static List<String> splitNumbers(String input) {
-        return Arrays.asList(SPLIT_PATTERN.split(input));
+        return Arrays.asList(DEFAULT_SPLIT_PATTERN.split(input));
     }
 
     private static void ensureNonNegative(int number) {
         if (number < 0) {
-            throw new IllegalArgumentException(
-                    "Negatives not allowed: " + number
-            );
+            throw new IllegalArgumentException("Negatives not allowed: " + number);
         }
     }
 }
