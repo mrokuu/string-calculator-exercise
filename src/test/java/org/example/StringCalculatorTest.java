@@ -166,6 +166,22 @@ class StringCalculatorTest {
                 .hasMessage("Negatives not allowed: -3\n'|' expected but ',' found at position 3.");
     }
 
+    @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
+    @MethodSource("provideLargeNumberInputs")
+    void add_shouldReturnExpectedSum_whenInputContainsLargeNumbers(String input, int expected) {
+        assertThat(StringCalculator.add(input)).isEqualTo(expected);
+    }
+
+    private static Stream<Arguments> provideLargeNumberInputs() {
+        return Stream.of(
+                Arguments.of("2,1001", 2),
+                Arguments.of("1000,1", 1001),
+                Arguments.of("1000,1001,2", 1002),
+                Arguments.of("//;\n2;1001;3", 5),
+                Arguments.of("//sep\n2sep1001sep1002", 2)
+        );
+    }
+
     private static Stream<Arguments> negativeInputs() {
         return Stream.of(
                 Arguments.of("1,-2", "Negatives not allowed: -2"),
