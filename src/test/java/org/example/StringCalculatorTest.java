@@ -18,7 +18,7 @@ class StringCalculatorTest {
         var result = calculator.add(StringUtils.EMPTY);
 
         //then
-        assertThat(result).isEqualTo(0);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -35,4 +35,16 @@ class StringCalculatorTest {
 
     }
 
+    @Test
+    void add_shouldReturnSum_whenInputContainsTwoNumbersSeparatedByComma(){
+        //given
+        String value = "11,22";
+        StringCalculator calculator = new StringCalculator();
+
+        //when
+        var result = calculator.add(value);
+
+        //then
+        assertThat(result).isEqualTo(33);
+    }
 }
