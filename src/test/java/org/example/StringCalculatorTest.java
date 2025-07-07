@@ -110,7 +110,10 @@ class StringCalculatorTest {
     @Test
     @DisplayName("Throws when the custom delimiter appears at the very end")
     void shouldThrow_whenCustomDelimiterAtEnd() {
+        //given
         String input = "//;\n1;2;";
+
+        //when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Separator at end not allowed");
@@ -119,10 +122,45 @@ class StringCalculatorTest {
     @Test
     @DisplayName("Throws when two delimiters occur consecutively (empty token)")
     void shouldThrow_whenTwoDelimitersInARow() {
+        //given
         String input = "//|\n1||3";
+
+        //when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @ParameterizedTest(name = "{index} ⇒ \"{0}\" → \"{1}\"")
+    @MethodSource("negativeInputs")
+    @DisplayName("Throws an exception listing every negative number")
+    void add_shouldThrowExceptionWithListOfNegativeNumbers_whenInputHasNegatives(String input,
+                                                                                 String expectedMessage) {
+        // when / then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(expectedMessage);
+    }
+
+    @Test
+    @DisplayName("Works the same with a custom delimiter")
+    void add_shouldThrowExceptionWithListOfNegativeNumbers_whenInputHasNegativesAndCustomDelimiter() {
+        // given
+        String input = "//#\n2#-4#-9";
+
+        // when / then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Negatives not allowed: -4, -9");
+    }
+
+    private static Stream<Arguments> negativeInputs() {
+        return Stream.of(
+                Arguments.of("1,-2", "Negatives not allowed: -2"),
+                Arguments.of("2,-4,-9", "Negatives not allowed: -4, -9"),
+                Arguments.of("-2,-4,-9", "Negatives not allowed: -2, -4, -9"),
+                Arguments.of("-10", "Negatives not allowed: -10")
+        );
     }
 
     static Stream<Arguments> provideInputsAndExpectedSums() {

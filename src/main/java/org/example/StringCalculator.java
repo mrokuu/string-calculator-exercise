@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -69,24 +70,33 @@ class StringCalculator {
 
     private static int sumTokens(List<String> tokens) {
         int sum = 0;
+        List<Integer> negatives = new ArrayList<>();
+
         for (String token : tokens) {
             if (token.isBlank()) {
                 throw new IllegalArgumentException("Separator at end not allowed");
             }
+
             int value = Integer.parseInt(token.trim());
-            ensureNonNegative(value);
+
+            if (value < 0) {
+                negatives.add(value);
+                continue;
+            }
+
             sum += value;
         }
+
+        if (!negatives.isEmpty()) {
+            String msg = "Negatives not allowed: " +
+                    String.join(", ", negatives.stream().map(Object::toString).toList());
+            throw new IllegalArgumentException(msg);
+        }
+
         return sum;
     }
 
     private static List<String> splitNumbers(String input) {
         return Arrays.asList(DEFAULT_SPLIT_PATTERN.split(input));
-    }
-
-    private static void ensureNonNegative(int number) {
-        if (number < 0) {
-            throw new IllegalArgumentException("Negatives not allowed: " + number);
-        }
     }
 }
