@@ -154,6 +154,18 @@ class StringCalculatorTest {
                 .hasMessage("Negatives not allowed: -4, -9");
     }
 
+    @Test
+    @DisplayName("Should aggregate negative-number and mixed-delimiter errors")
+    void add_shouldThrowIllegalArgumentExceptionWithAggregatedMessages_whenInputHasNegativesAndMixedDelimiters() {
+        // given
+        String input = "//|\n1|2,-3";
+
+        // when / then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Negatives not allowed: -3\n'|' expected but ',' found at position 3.");
+    }
+
     private static Stream<Arguments> negativeInputs() {
         return Stream.of(
                 Arguments.of("1,-2", "Negatives not allowed: -2"),

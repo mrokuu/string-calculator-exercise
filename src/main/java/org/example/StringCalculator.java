@@ -3,7 +3,9 @@ package org.example;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class StringCalculator {
 
@@ -11,6 +13,7 @@ class StringCalculator {
     private static final String NEWLINE_DELIMITER = "\n";
     private static final Pattern DEFAULT_SPLIT_PATTERN =
             Pattern.compile(DEFAULT_DELIMITER + "|" + NEWLINE_DELIMITER);
+    private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
     public static int add(String input) {
         if (input == null || input.isBlank()) {
@@ -40,18 +43,31 @@ class StringCalculator {
         }
 
         String numbersPart = input.substring(newlineIdx + 1);
-
         if (numbersPart.endsWith(delimiter)) {
             throw new IllegalArgumentException("Separator at end not allowed");
         }
 
-        validateDelimiterUsage(numbersPart, delimiter);
+        List<String> errorMessages = new ArrayList<>();
+
+        String delimiterError = findDelimiterMisuseMessage(numbersPart, delimiter);
+        if (delimiterError != null) {
+            errorMessages.add(delimiterError); // will append later; order fixed after negatives
+        }
+
+        List<Integer> negatives = extractNegatives(numbersPart);
+        if (!negatives.isEmpty()) {
+            errorMessages.add(0, buildNegativesMessage(negatives));
+        }
+
+        if (!errorMessages.isEmpty()) {
+            throw new IllegalArgumentException(String.join("\n", errorMessages));
+        }
 
         String[] tokens = numbersPart.split(Pattern.quote(delimiter));
         return sumTokens(Arrays.asList(tokens));
     }
 
-    private static void validateDelimiterUsage(String numbers, String delimiter) {
+    private static String findDelimiterMisuseMessage(String numbers, String delimiter) {
         for (int i = 0; i < numbers.length(); ) {
             if (numbers.startsWith(delimiter, i)) {
                 i += delimiter.length();
@@ -62,10 +78,24 @@ class StringCalculator {
                 i++;
                 continue;
             }
-            throw new IllegalArgumentException(
-                    "'" + delimiter + "' expected but '" + ch + "' found at position " + i + "."
-            );
+            return "'" + delimiter + "' expected but '" + ch + "' found at position " + i + ".";
         }
+        return null;
+    }
+
+    private static List<Integer> extractNegatives(String numbers) {
+        List<Integer> negatives = new ArrayList<>();
+        Matcher m = NEGATIVE_PATTERN.matcher(numbers);
+        while (m.find()) {
+            negatives.add(Integer.parseInt(m.group()));
+        }
+        return negatives;
+    }
+
+    private static String buildNegativesMessage(List<Integer> negatives) {
+        return "Negatives not allowed: " + negatives.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
     }
 
     private static int sumTokens(List<String> tokens) {
@@ -81,16 +111,13 @@ class StringCalculator {
 
             if (value < 0) {
                 negatives.add(value);
-                continue;
+            } else if (value <= 1000) {
+                sum += value;
             }
-
-            sum += value;
         }
 
         if (!negatives.isEmpty()) {
-            String msg = "Negatives not allowed: " +
-                    String.join(", ", negatives.stream().map(Object::toString).toList());
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException(buildNegativesMessage(negatives));
         }
 
         return sum;
