@@ -1,21 +1,45 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
 class StringCalculator {
     private static final String DEFAULT_DELIMITER = ",";
+    private static final String NEWLINE_DELIMITER = "\n";
+    private static final Pattern SPLIT_PATTERN =
+            Pattern.compile(DEFAULT_DELIMITER + "|" + NEWLINE_DELIMITER);
 
     public static int add(String input) {
         if (input == null || input.isBlank()) {
             return 0;
         }
 
-        if (input.contains(",")) {
-            String[] parts = input.split(DEFAULT_DELIMITER);
-            var result = 0;
-            for (var part : parts) {
-                result += Integer.parseInt(part);
-            }
-            return result;
+        List<String> tokens = splitNumbers(input);
+
+        List<Integer> numbers = new ArrayList<>();
+        for (String token : tokens) {
+            String trimmed = token.trim();
+            int value = Integer.parseInt(trimmed);
+            ensureNonNegative(value);
+            numbers.add(value);
         }
-        return Integer.parseInt(input.trim());
+
+        return numbers.stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
+    private static List<String> splitNumbers(String input) {
+        return Arrays.asList(SPLIT_PATTERN.split(input));
+    }
+
+    private static void ensureNonNegative(int number) {
+        if (number < 0) {
+            throw new IllegalArgumentException(
+                    "Negatives not allowed: " + number
+            );
+        }
     }
 }

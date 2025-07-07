@@ -60,6 +60,18 @@ class StringCalculatorTest {
         assertThat(result).isEqualTo(expected);
     }
 
+    @Test
+    void add_shouldTreatNewlineAsSeparator_whenInputContainsCommaAndNewline() {
+        // given
+        String input = "1,2\n3";
+
+        // when
+        int result = StringCalculator.add(input);
+
+        // then
+        assertThat(result).isEqualTo(6);
+    }
+
 
     static Stream<Arguments> provideInputsAndExpectedSums() {
         return Stream.of(
