@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,6 +74,15 @@ class StringCalculatorTest {
         assertThat(result).isEqualTo(6);
     }
 
+    @ParameterizedTest(name = "should throw IllegalArgumentException")
+    @ValueSource(strings = {"1,2,",
+            "1,2\n"})
+    void add_shouldThrowIllegalArgumentException_whenSeparatorIsAtTheEnd(String input) {
+        // When / Then
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
 
     static Stream<Arguments> provideInputsAndExpectedSums() {
         return Stream.of(

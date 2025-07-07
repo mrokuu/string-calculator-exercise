@@ -16,6 +16,10 @@ class StringCalculator {
             return 0;
         }
 
+        if(input.endsWith(DEFAULT_DELIMITER) || input.endsWith(NEWLINE_DELIMITER)) {
+            throw new IllegalArgumentException("Separator at end not allowed");
+        }
+
         List<String> tokens = splitNumbers(input);
 
         List<Integer> numbers = new ArrayList<>();
