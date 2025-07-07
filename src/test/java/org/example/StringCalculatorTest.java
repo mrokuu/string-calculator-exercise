@@ -172,6 +172,43 @@ class StringCalculatorTest {
         assertThat(StringCalculator.add(input)).isEqualTo(expected);
     }
 
+    @Test
+    @DisplayName("Null input returns 0")
+    void add_nullInput_returnsZero() {
+        assertThat(StringCalculator.add(null)).isZero();
+    }
+
+    @Test
+    @DisplayName("Only newlines as default separators")
+    void add_onlyNewlines_returnsSum() {
+        assertThat(StringCalculator.add("1\n2\n3")).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("Comma immediately before newline causes exception")
+    void add_commaBeforeNewline_throws() {
+        assertThatThrownBy(() -> StringCalculator.add("2,\n3"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Whitespace around numbers is ignored")
+    void add_numbersWithWhitespace_stillWorks() {
+        assertThat(StringCalculator.add(" 1 ,\t2 ")).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("Large numbers ignored with newline-only separators")
+    void add_largeNumberWithNewlines_ignored() {
+        assertThat(StringCalculator.add("2\n1001\n6")).isEqualTo(8);
+    }
+
+    @Test
+    @DisplayName("Delimiter that is a regex meta-character is handled correctly")
+    void add_regexMetaDelimiter_works() {
+        assertThat(StringCalculator.add("//*\n1*2*3")).isEqualTo(6);
+    }
+
     private static Stream<Arguments> provideLargeNumberInputs() {
         return Stream.of(
                 Arguments.of("2,1001", 2),
