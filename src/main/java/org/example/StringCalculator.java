@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,14 +12,10 @@ class StringCalculator {
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
     public int add(String... args) {
-        int sum = 0;
-        for (var s : args) {
-            sum += add(s);
-        }
-        return sum;
+        return Arrays.stream(args).mapToInt(this::add).sum();
     }
 
-    public static int add(String input) {
+    public int add(String input) {
         if (input == null || input.isBlank()) {
             return 0;
         }
@@ -38,7 +35,7 @@ class StringCalculator {
         }
     }
 
-    private static int addWithCustomDelimiter(String input, InputParser.ParseResult parseResult) {
+    private int addWithCustomDelimiter(String input, InputParser.ParseResult parseResult) {
         int newlineIdx = input.indexOf('\n');
         String delimiter = parseResult.getCustomDelimiter();
         String numbersPart = input.substring(newlineIdx + 1);
@@ -65,7 +62,7 @@ class StringCalculator {
         return sumTokens(parseResult.getTokens());
     }
 
-    private static String findDelimiterMisuseMessage(String numbers, String delimiter) {
+    private String findDelimiterMisuseMessage(String numbers, String delimiter) {
         for (int i = 0; i < numbers.length(); ) {
             if (numbers.startsWith(delimiter, i)) {
                 i += delimiter.length();
@@ -81,7 +78,7 @@ class StringCalculator {
         return null;
     }
 
-    private static List<Integer> extractNegatives(String numbers) {
+    private List<Integer> extractNegatives(String numbers) {
         List<Integer> negatives = new ArrayList<>();
         Matcher m = NEGATIVE_PATTERN.matcher(numbers);
         while (m.find()) {
@@ -90,13 +87,13 @@ class StringCalculator {
         return negatives;
     }
 
-    private static String buildNegativesMessage(List<Integer> negatives) {
+    private String buildNegativesMessage(List<Integer> negatives) {
         return "Negative number(s) not allowed: " + negatives.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
     }
 
-    private static int sumTokens(List<String> tokens) {
+    private int sumTokens(List<String> tokens) {
         int sum = 0;
         List<Integer> negatives = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
