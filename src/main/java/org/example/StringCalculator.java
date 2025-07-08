@@ -15,6 +15,62 @@ final class Delimiters {
     private Delimiters() {}
 }
 
+final class InputParser {
+
+    public static ParseResult parseInput(String input) {
+        if (input == null || input.isBlank()) {
+            return new ParseResult(new ArrayList<>(), null);
+        }
+
+        if (input.startsWith("//")) {
+            return parseWithCustomDelimiter(input);
+        } else {
+            return parseWithDefaultDelimiters(input);
+        }
+    }
+
+    private static ParseResult parseWithCustomDelimiter(String input) {
+        int newlineIdx = input.indexOf('\n');
+        if (newlineIdx == -1) {
+            throw new IllegalArgumentException("Missing newline after delimiter declaration");
+        }
+
+        String delimiter = input.substring(2, newlineIdx);
+        if (delimiter.isEmpty()) {
+            throw new IllegalArgumentException("Delimiter cannot be empty");
+        }
+
+        String numbersPart = input.substring(newlineIdx + 1);
+        List<String> tokens = tokenize(numbersPart, Pattern.quote(delimiter));
+
+        return new ParseResult(tokens, delimiter);
+    }
+
+    private static ParseResult parseWithDefaultDelimiters(String input) {
+        List<String> tokens = tokenize(input, Pattern.quote(Delimiters.COMMA));
+        return new ParseResult(tokens, null);
+    }
+
+    private static List<String> tokenize(String numbers, String delimiterRegex) {
+        String finalRegex = delimiterRegex + "|" + Pattern.quote(Delimiters.NEWLINE);
+        return Arrays.asList(numbers.split(finalRegex));
+    }
+
+    static class ParseResult {
+        private final List<String> tokens;
+        private final String customDelimiter;
+
+        public ParseResult(List<String> tokens, String customDelimiter) {
+            this.tokens = tokens;
+            this.customDelimiter = customDelimiter;
+        }
+
+        public List<String> getTokens() { return tokens; }
+        public String getCustomDelimiter() { return customDelimiter; }
+        public boolean hasCustomDelimiter() { return customDelimiter != null; }
+    }
+}
+
 class StringCalculator {
 
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
@@ -23,46 +79,47 @@ class StringCalculator {
         if (input == null || input.isBlank()) {
             return 0;
         }
-        if (input.startsWith("//")) {
-            return addWithCustomDelimiter(input);
+
+        if (!input.startsWith("//")) {
+            if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
+                throw new IllegalArgumentException("Separator at end not allowed");
+            }
         }
-        if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
-            throw new IllegalArgumentException("Separator at end not allowed");
+
+        InputParser.ParseResult parseResult = InputParser.parseInput(input);
+
+        if (parseResult.hasCustomDelimiter()) {
+            return addWithCustomDelimiter(input, parseResult);
+        } else {
+            return sumTokens(parseResult.getTokens());
         }
-        return sumTokens(tokenize(input, Pattern.quote(Delimiters.COMMA)));
     }
 
-    private static int addWithCustomDelimiter(String input) {
+    private static int addWithCustomDelimiter(String input, InputParser.ParseResult parseResult) {
         int newlineIdx = input.indexOf('\n');
-        if (newlineIdx == -1) {
-            throw new IllegalArgumentException("Missing newline after delimiter declaration");
-        }
-        String delimiter = input.substring(2, newlineIdx);
-        if (delimiter.isEmpty()) {
-            throw new IllegalArgumentException("Delimiter cannot be empty");
-        }
+        String delimiter = parseResult.getCustomDelimiter();
         String numbersPart = input.substring(newlineIdx + 1);
+
         if (numbersPart.endsWith(delimiter)) {
             throw new IllegalArgumentException("Separator at end not allowed");
         }
+
         List<String> errorMessages = new ArrayList<>();
         String delimiterError = findDelimiterMisuseMessage(numbersPart, delimiter);
         if (delimiterError != null) {
             errorMessages.add(delimiterError);
         }
+
         List<Integer> negatives = extractNegatives(numbersPart);
         if (!negatives.isEmpty()) {
             errorMessages.add(0, buildNegativesMessage(negatives));
         }
+
         if (!errorMessages.isEmpty()) {
             throw new IllegalArgumentException(String.join("\n", errorMessages));
         }
-        return sumTokens(tokenize(numbersPart, Pattern.quote(delimiter)));
-    }
 
-    private static List<String> tokenize(String numbers, String delimiterRegex) {
-        String finalRegex = delimiterRegex + "|" + Pattern.quote(Delimiters.NEWLINE);
-        return Arrays.asList(numbers.split(finalRegex));
+        return sumTokens(parseResult.getTokens());
     }
 
     private static String findDelimiterMisuseMessage(String numbers, String delimiter) {
