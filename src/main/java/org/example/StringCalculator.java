@@ -35,42 +35,30 @@ class StringCalculator {
     private static List<Integer> extractAndValidateNumbers(String input) {
         CalculationData calculationData = parseInputToData(input);
 
-        if (!input.startsWith("//")) {
-            validateEndSeparator(calculationData);
-        }
-
-        if (calculationData.delimiter().equals(Delimiters.COMMA + "|" + Delimiters.NEWLINE)) {
-            return sumTokens(parseTokens(calculationData));
+        if (CustomDelimiterService.hasCustomDelimiter(input)) {
+            return processCustomDelimiter(input, calculationData);
         } else {
-            return addWithCustomDelimiter(input, calculationData);
+            return processDefaultDelimiters(calculationData);
         }
     }
 
     private static CalculationData parseInputToData(String input) {
-        if (input.startsWith("//")) {
-            InputParser.ParseResult parseResult = InputParser.parseInput(input);
-            return new CalculationData(input, parseResult.getCustomDelimiter());
+        if (CustomDelimiterService.hasCustomDelimiter(input)) {
+            return CustomDelimiterService.parseCustomDelimiter(input);
         } else {
-            return new CalculationData(input, Delimiters.COMMA + "|" + Delimiters.NEWLINE);
+            return new CalculationData(input, CustomDelimiterService.DEFAULT_DELIMITERS);
         }
     }
 
-    private static void validateEndSeparator(CalculationData calculationData) {
-        String input = calculationData.input();
-        if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
-            throw new InputException("Separator at end not allowed");
-        }
+    private static List<Integer> processDefaultDelimiters(CalculationData calculationData) {
+        validateEndSeparator(calculationData);
+        List<String> tokens = parseTokens(calculationData);
+        return sumTokens(tokens);
     }
 
-    private static List<String> parseTokens(CalculationData calculationData) {
-        String input = calculationData.input();
-        return java.util.Arrays.asList(input.split(calculationData.delimiter()));
-    }
-
-    private static List<Integer> addWithCustomDelimiter(String input, CalculationData calculationData) {
-        int newlineIdx = input.indexOf('\n');
+    private static List<Integer> processCustomDelimiter(String originalInput, CalculationData calculationData) {
+        String numbersPart = calculationData.input();
         String delimiter = calculationData.delimiter();
-        String numbersPart = input.substring(newlineIdx + 1);
 
         if (numbersPart.endsWith(delimiter)) {
             throw new InputException("Separator at end not allowed");
@@ -91,8 +79,26 @@ class StringCalculator {
             throw new InputException(String.join("\n", errorMessages));
         }
 
-        InputParser.ParseResult parseResult = InputParser.parseInput(input);
-        return sumTokens(parseResult.getTokens());
+        List<String> tokens = parseCustomTokens(numbersPart, delimiter);
+        return sumTokens(tokens);
+    }
+
+    private static void validateEndSeparator(CalculationData calculationData) {
+        String input = calculationData.input();
+        if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
+            throw new InputException("Separator at end not allowed");
+        }
+    }
+
+    private static List<String> parseTokens(CalculationData calculationData) {
+        String input = calculationData.input();
+        return java.util.Arrays.asList(input.split(calculationData.delimiter()));
+    }
+
+    private static List<String> parseCustomTokens(String input, String delimiter) {
+        String escapedDelimiter = Pattern.quote(delimiter);
+        String combinedDelimiters = escapedDelimiter + "|" + Pattern.quote(Delimiters.NEWLINE);
+        return java.util.Arrays.asList(input.split(combinedDelimiters));
     }
 
     private static String findDelimiterMisuseMessage(String numbers, String delimiter) {
