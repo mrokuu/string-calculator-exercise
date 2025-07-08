@@ -1,75 +1,10 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-final class Delimiters {
-    static final String COMMA = ",";
-    static final String NEWLINE = "\n";
-    static final int MAX_VALUE = 1000;
-
-    private Delimiters() {}
-}
-
-final class InputParser {
-
-    public static ParseResult parseInput(String input) {
-        if (input == null || input.isBlank()) {
-            return new ParseResult(new ArrayList<>(), null);
-        }
-
-        if (input.startsWith("//")) {
-            return parseWithCustomDelimiter(input);
-        } else {
-            return parseWithDefaultDelimiters(input);
-        }
-    }
-
-    private static ParseResult parseWithCustomDelimiter(String input) {
-        int newlineIdx = input.indexOf('\n');
-        if (newlineIdx == -1) {
-            throw new IllegalArgumentException("Missing newline after delimiter declaration");
-        }
-
-        String delimiter = input.substring(2, newlineIdx);
-        if (delimiter.isEmpty()) {
-            throw new IllegalArgumentException("Delimiter cannot be empty");
-        }
-
-        String numbersPart = input.substring(newlineIdx + 1);
-        List<String> tokens = tokenize(numbersPart, Pattern.quote(delimiter));
-
-        return new ParseResult(tokens, delimiter);
-    }
-
-    private static ParseResult parseWithDefaultDelimiters(String input) {
-        List<String> tokens = tokenize(input, Pattern.quote(Delimiters.COMMA));
-        return new ParseResult(tokens, null);
-    }
-
-    private static List<String> tokenize(String numbers, String delimiterRegex) {
-        String finalRegex = delimiterRegex + "|" + Pattern.quote(Delimiters.NEWLINE);
-        return Arrays.asList(numbers.split(finalRegex));
-    }
-
-    static class ParseResult {
-        private final List<String> tokens;
-        private final String customDelimiter;
-
-        public ParseResult(List<String> tokens, String customDelimiter) {
-            this.tokens = tokens;
-            this.customDelimiter = customDelimiter;
-        }
-
-        public List<String> getTokens() { return tokens; }
-        public String getCustomDelimiter() { return customDelimiter; }
-        public boolean hasCustomDelimiter() { return customDelimiter != null; }
-    }
-}
 
 class StringCalculator {
 
@@ -82,7 +17,7 @@ class StringCalculator {
 
         if (!input.startsWith("//")) {
             if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
-                throw new IllegalArgumentException("Separator at end not allowed");
+                throw new InputException("Separator at end not allowed");
             }
         }
 
@@ -101,7 +36,7 @@ class StringCalculator {
         String numbersPart = input.substring(newlineIdx + 1);
 
         if (numbersPart.endsWith(delimiter)) {
-            throw new IllegalArgumentException("Separator at end not allowed");
+            throw new InputException("Separator at end not allowed");
         }
 
         List<String> errorMessages = new ArrayList<>();
@@ -116,7 +51,7 @@ class StringCalculator {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw new IllegalArgumentException(String.join("\n", errorMessages));
+            throw new InputException(String.join("\n", errorMessages));
         }
 
         return sumTokens(parseResult.getTokens());
@@ -158,7 +93,7 @@ class StringCalculator {
         List<Integer> negatives = new ArrayList<>();
         for (String token : tokens) {
             if (token.isBlank()) {
-                throw new IllegalArgumentException("Separator at end not allowed");
+                throw new InputException("Separator at end not allowed");
             }
             int value = Integer.parseInt(token.trim());
             if (value < 0) {
@@ -168,7 +103,7 @@ class StringCalculator {
             }
         }
         if (!negatives.isEmpty()) {
-            throw new IllegalArgumentException(buildNegativesMessage(negatives));
+            throw new InputException(buildNegativesMessage(negatives));
         }
         return sum;
     }

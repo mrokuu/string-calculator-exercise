@@ -79,7 +79,7 @@ class StringCalculatorTest {
     void add_shouldThrowIllegalArgumentException_whenSeparatorIsAtTheEnd(String input) {
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessageContaining("Separator at end not allowed");
     }
 
@@ -102,7 +102,7 @@ class StringCalculatorTest {
 
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessage("'|' expected but ',' found at position 3.");
     }
 
@@ -114,7 +114,7 @@ class StringCalculatorTest {
 
         //when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessageContaining("Separator at end not allowed");
     }
 
@@ -126,7 +126,7 @@ class StringCalculatorTest {
 
         //when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessageContaining("Separator at end not allowed");
     }
 
@@ -137,7 +137,7 @@ class StringCalculatorTest {
                                                                                  String expectedMessage) {
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessage(expectedMessage);
     }
 
@@ -149,7 +149,7 @@ class StringCalculatorTest {
 
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessage("Negative number(s) not allowed: -4, -9");
     }
 
@@ -161,7 +161,7 @@ class StringCalculatorTest {
 
         // when / then
         assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InputException.class)
                 .hasMessage("Negative number(s) not allowed: -3\n'|' expected but ',' found at position 3.");
     }
 
@@ -187,7 +187,7 @@ class StringCalculatorTest {
     @DisplayName("Comma immediately before newline causes exception")
     void add_commaBeforeNewline_throws() {
         assertThatThrownBy(() -> StringCalculator.add("2,\n3"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InputException.class);
     }
 
     @Test
