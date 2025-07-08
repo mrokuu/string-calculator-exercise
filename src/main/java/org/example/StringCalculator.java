@@ -10,6 +10,14 @@ class StringCalculator {
 
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
+    public int add(String... args) {
+        int sum = 0;
+        for (var s : args) {
+            sum += add(s);
+        }
+        return sum;
+    }
+
     public static int add(String input) {
         if (input == null || input.isBlank()) {
             return 0;
