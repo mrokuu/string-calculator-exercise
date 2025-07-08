@@ -12,219 +12,33 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StringCalculatorTest {
 
     @Test
-    void add_shouldReturnZero_whenInputIsEmpty() {
-        // given
-        String value = StringUtils.EMPTY;
-
-        // when
-        var result = StringCalculator.add(value);
-
-        // then
-        assertThat(result).isZero();
+    @DisplayName("Empty input returns zero")
+    void add_emptyString_returnsZero() {
+        assertThat(StringCalculator.add(StringUtils.EMPTY)).isZero();
     }
 
     @Test
-    void add_shouldReturnSameNumber_whenInputIsSingleNumber() {
-        // given
-        String value = "34";
-
-        // when
-        var result = StringCalculator.add(value);
-
-        // then
-        assertThat(result).isEqualTo(Integer.parseInt(value));
-    }
-
-    @Test
-    void add_shouldReturnSum_whenInputContainsTwoNumbersSeparatedByComma() {
-        // given
-        String value = "11,22";
-
-        // when
-        var result = StringCalculator.add(value);
-
-        // then
-        assertThat(result).isEqualTo(33);
-    }
-
-    @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
-    @MethodSource("provideInputsAndExpectedSums")
-    void add_shouldReturnExpectedSum_forVariousInputs(String input, int expected) {
-        // when
-        int result = StringCalculator.add(input);
-
-        // then
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    void add_shouldTreatNewlineAsSeparator_whenInputContainsCommaAndNewline() {
-        // given
-        String input = "1,2\n3";
-
-        // when
-        int result = StringCalculator.add(input);
-
-        // then
-        assertThat(result).isEqualTo(6);
-    }
-
-    @ParameterizedTest(name = "should throw IllegalArgumentException")
-    @ValueSource(strings = {"1,2,",
-            "1,2\n"})
-    void add_shouldThrowIllegalArgumentException_whenSeparatorIsAtTheEnd(String input) {
-        // when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessageContaining("Separator at end not allowed");
-    }
-
-    @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
-    @MethodSource("validInputs")
-    @DisplayName("Should return the correct sum")
-    void add_shouldReturnSum_whenCustomDelimiterSpecified(String input, int expected) {
-        // when
-        int result = StringCalculator.add(input);
-
-        // then
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Should throw when delimiters are mixed")
-    void add_shouldThrowIllegalArgumentException_whenDelimitersAreMixed() {
-        // given
-        String input = "//|\n1|2,3";
-
-        // when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessage("'|' expected but ',' found at position 3.");
-    }
-
-    @Test
-    @DisplayName("Throws when the custom delimiter appears at the very end")
-    void shouldThrow_whenCustomDelimiterAtEnd() {
-        //given
-        String input = "//;\n1;2;";
-
-        //when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessageContaining("Separator at end not allowed");
-    }
-
-    @Test
-    @DisplayName("Throws when two delimiters occur consecutively (empty token)")
-    void shouldThrow_whenTwoDelimitersInARow() {
-        //given
-        String input = "//|\n1||3";
-
-        //when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessageContaining("Separator at end not allowed");
-    }
-
-    @ParameterizedTest(name = "{index} ⇒ \"{0}\" → \"{1}\"")
-    @MethodSource("negativeInputs")
-    @DisplayName("Throws an exception listing every negative number")
-    void add_shouldThrowExceptionWithListOfNegativeNumbers_whenInputHasNegatives(String input,
-                                                                                 String expectedMessage) {
-        // when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessage(expectedMessage);
-    }
-
-    @Test
-    @DisplayName("Works the same with a custom delimiter")
-    void add_shouldThrowExceptionWithListOfNegativeNumbers_whenInputHasNegativesAndCustomDelimiter() {
-        // given
-        String input = "//#\n2#-4#-9";
-
-        // when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessage("Negative number(s) not allowed: -4, -9");
-    }
-
-    @Test
-    @DisplayName("Should aggregate negative-number and mixed-delimiter errors")
-    void add_shouldThrowIllegalArgumentExceptionWithAggregatedMessages_whenInputHasNegativesAndMixedDelimiters() {
-        // given
-        String input = "//|\n1|2,-3";
-
-        // when / then
-        assertThatThrownBy(() -> StringCalculator.add(input))
-                .isInstanceOf(InputException.class)
-                .hasMessage("Negative number(s) not allowed: -3\n'|' expected but ',' found at position 3.");
-    }
-
-    @ParameterizedTest(name = "{index} ⇒ add(\"{0}\") = {1}")
-    @MethodSource("provideLargeNumberInputs")
-    void add_shouldReturnExpectedSum_whenInputContainsLargeNumbers(String input, int expected) {
-        assertThat(StringCalculator.add(input)).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Null input returns 0")
+    @DisplayName("Null input returns zero")
     void add_nullInput_returnsZero() {
         assertThat(StringCalculator.add(null)).isZero();
     }
 
     @Test
-    @DisplayName("Only newlines as default separators")
-    void add_onlyNewlines_returnsSum() {
-        assertThat(StringCalculator.add("1\n2\n3")).isEqualTo(6);
+    @DisplayName("Single number returns itself")
+    void add_singleNumber_returnsSame() {
+        assertThat(StringCalculator.add("34")).isEqualTo(34);
     }
 
-    @Test
-    @DisplayName("Comma immediately before newline causes exception")
-    void add_commaBeforeNewline_throws() {
-        assertThatThrownBy(() -> StringCalculator.add("2,\n3"))
-                .isInstanceOf(InputException.class);
-    }
-
-    @Test
-    @DisplayName("Whitespace around numbers is ignored")
-    void add_numbersWithWhitespace_stillWorks() {
-        assertThat(StringCalculator.add(" 1 ,\t2 ")).isEqualTo(3);
-    }
-
-    @Test
-    @DisplayName("Large numbers ignored with newline-only separators")
-    void add_largeNumberWithNewlines_ignored() {
-        assertThat(StringCalculator.add("2\n1001\n6")).isEqualTo(8);
-    }
-
-    @Test
-    @DisplayName("Delimiter that is a regex meta-character is handled correctly")
-    void add_regexMetaDelimiter_works() {
-        assertThat(StringCalculator.add("//*\n1*2*3")).isEqualTo(6);
-    }
-
-    private static Stream<Arguments> provideLargeNumberInputs() {
-        return Stream.of(
-                Arguments.of("2,1001", 2),
-                Arguments.of("1000,1", 1001),
-                Arguments.of("1000,1001,2", 1002),
-                Arguments.of("//;\n2;1001;3", 5),
-                Arguments.of("//sep\n2sep1001sep1002", 2)
-        );
-    }
-
-    private static Stream<Arguments> negativeInputs() {
-        return Stream.of(
-                Arguments.of("1,-2", "Negative number(s) not allowed: -2"),
-                Arguments.of("2,-4,-9", "Negative number(s) not allowed: -4, -9"),
-                Arguments.of("-2,-4,-9", "Negative number(s) not allowed: -2, -4, -9"),
-                Arguments.of("-10", "Negative number(s) not allowed: -10")
-        );
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("provideInputsAndExpectedSums")
+    @DisplayName("Sum of multiple numbers")
+    void add_multipleNumbers_sumsCorrectly(String input, int expected) {
+        assertThat(StringCalculator.add(input)).isEqualTo(expected);
     }
 
     static Stream<Arguments> provideInputsAndExpectedSums() {
@@ -236,12 +50,123 @@ class StringCalculatorTest {
         );
     }
 
-    private static Stream<Arguments> validInputs() {
+    @Test
+    @DisplayName("Newline treated as separator")
+    void add_newlineSeparator_works() {
+        assertThat(StringCalculator.add("1,2\n3")).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("Only newlines as separators")
+    void add_onlyNewlines_returnsSum() {
+        assertThat(StringCalculator.add("1\n2\n3")).isEqualTo(6);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1,2,", "1,2\n"})
+    @DisplayName("Separator at end throws InputException")
+    void add_separatorAtEnd_throws(String input) {
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(InputException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @Test
+    @DisplayName("Comma immediately before newline throws")
+    void add_commaBeforeNewline_throws() {
+        assertThatThrownBy(() -> StringCalculator.add("2,\n3"))
+                .isInstanceOf(InputException.class);
+    }
+
+    @Test
+    @DisplayName("Whitespace around numbers is ignored")
+    void add_whitespaceIgnored() {
+        assertThat(StringCalculator.add(" 1 ,\t2 ")).isEqualTo(3);
+    }
+
+    @ParameterizedTest(name = "{0} with custom delimiter -> {1}")
+    @MethodSource("validCustomDelimiterInputs")
+    @DisplayName("Custom delimiter sums correctly")
+    void add_customDelimiter_sumsCorrectly(String input, int expected) {
+        assertThat(StringCalculator.add(input)).isEqualTo(expected);
+    }
+
+    static Stream<Arguments> validCustomDelimiterInputs() {
         return Stream.of(
                 Arguments.of("//;\n1;3", 4),
                 Arguments.of("//|\n1|2|3", 6),
                 Arguments.of("//#\n2#2#5", 9),
-                Arguments.of("//sep\n2sep5", 7)
+                Arguments.of("//sep\n2sep5", 7),
+                Arguments.of("//*\n1*2*3", 6)
+        );
+    }
+
+    @Test
+    @DisplayName("Mixed delimiters throws specific InputException")
+    void add_mixedDelimiters_throws() {
+        assertThatThrownBy(() -> StringCalculator.add("//|\n1|2,3"))
+                .isInstanceOf(InputException.class)
+                .hasMessage("'|' expected but ',' found at position 3.");
+    }
+
+    @Test
+    @DisplayName("Custom delimiter at end throws")
+    void add_customDelimiterAtEnd_throws() {
+        assertThatThrownBy(() -> StringCalculator.add("//;\n1;2;"))
+                .isInstanceOf(InputException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @Test
+    @DisplayName("Consecutive delimiters throw")
+    void add_consecutiveDelimiters_throws() {
+        assertThatThrownBy(() -> StringCalculator.add("//|\n1||3"))
+                .isInstanceOf(InputException.class)
+                .hasMessageContaining("Separator at end not allowed");
+    }
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("negativeInputs")
+    @DisplayName("Negative numbers list in exception")
+    void add_negativeNumbers_throws(String input, String expectedMessage) {
+        assertThatThrownBy(() -> StringCalculator.add(input))
+                .isInstanceOf(InputException.class)
+                .hasMessage(expectedMessage);
+    }
+
+    static Stream<Arguments> negativeInputs() {
+        return Stream.of(
+                Arguments.of("1,-2", "Negative number(s) not allowed: -2"),
+                Arguments.of("2,-4,-9", "Negative number(s) not allowed: -4, -9"),
+                Arguments.of("-2,-4,-9", "Negative number(s) not allowed: -2, -4, -9"),
+                Arguments.of("-10", "Negative number(s) not allowed: -10")
+        );
+    }
+
+    @Test
+    @DisplayName("Aggregates negative and mixed-delimiter errors")
+    void add_negativeAndMixedErrors_throwsAggregated() {
+        String input = "//|\n1|2,-3";
+        InputException ex = assertThrows(InputException.class, () -> StringCalculator.add(input));
+        String expected = "Negative number(s) not allowed: -3\n" +
+                "'|' expected but ',' found at position 3.";
+        assertThat(ex.getMessage()).isEqualTo(expected);
+    }
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("largeNumberInputs")
+    @DisplayName("Numbers >1000 are ignored")
+    void add_largeNumbers_ignored(String input, int expected) {
+        assertThat(StringCalculator.add(input)).isEqualTo(expected);
+    }
+
+    static Stream<Arguments> largeNumberInputs() {
+        return Stream.of(
+                Arguments.of("2,1001", 2),
+                Arguments.of("1000,1", 1001),
+                Arguments.of("1000,1001,2", 1002),
+                Arguments.of("//;\n2;1001;3", 5),
+                Arguments.of("//sep\n2sep1001sep1002", 2)
         );
     }
 }

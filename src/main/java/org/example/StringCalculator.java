@@ -47,7 +47,7 @@ class StringCalculator {
 
         List<Integer> negatives = extractNegatives(numbersPart);
         if (!negatives.isEmpty()) {
-            errorMessages.add(0, buildNegativesMessage(negatives));
+            errorMessages.addFirst(buildNegativesMessage(negatives));
         }
 
         if (!errorMessages.isEmpty()) {
@@ -91,20 +91,31 @@ class StringCalculator {
     private static int sumTokens(List<String> tokens) {
         int sum = 0;
         List<Integer> negatives = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
+
         for (String token : tokens) {
             if (token.isBlank()) {
-                throw new InputException("Separator at end not allowed");
+                errorMessages.add("Separator at end not allowed");
+                continue;
             }
+
             int value = Integer.parseInt(token.trim());
+
             if (value < 0) {
                 negatives.add(value);
             } else if (value <= Delimiters.MAX_VALUE) {
                 sum += value;
             }
         }
+
         if (!negatives.isEmpty()) {
-            throw new InputException(buildNegativesMessage(negatives));
+            errorMessages.addFirst(buildNegativesMessage(negatives));
         }
+
+        if (!errorMessages.isEmpty()) {
+            throw new InputException(String.join("\n", errorMessages));
+        }
+
         return sum;
     }
 }
