@@ -4,7 +4,6 @@ class CustomDelimiterService {
 
     private static final String DELIMITER_PREFIX = "//";
     private static final String DELIMITER_SUFFIX = "\n";
-    public static final String DEFAULT_DELIMITERS = ",|\n";
 
     public static boolean hasCustomDelimiter(String input) {
         return input.startsWith(DELIMITER_PREFIX) && input.contains(DELIMITER_SUFFIX);
