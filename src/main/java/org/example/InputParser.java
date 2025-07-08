@@ -57,6 +57,5 @@ class InputParser {
 
         public List<String> getTokens() { return tokens; }
         public String getCustomDelimiter() { return customDelimiter; }
-        public boolean hasCustomDelimiter() { return customDelimiter != null; }
     }
 }

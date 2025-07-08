@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 class StringCalculator {
 
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
+    private static final int MAX_VALUE = 1000;
 
     public int add(String... args) {
         return Arrays.stream(args).mapToInt(this::add).sum();
@@ -20,24 +21,55 @@ class StringCalculator {
             return 0;
         }
 
-        if (!input.startsWith("//")) {
-            if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
-                throw new InputException("Separator at end not allowed");
-            }
-        }
-
-        InputParser.ParseResult parseResult = InputParser.parseInput(input);
-
-        if (parseResult.hasCustomDelimiter()) {
-            return addWithCustomDelimiter(input, parseResult);
-        } else {
-            return sumTokens(parseResult.getTokens());
+        try {
+            List<Integer> numbers = extractAndValidateNumbers(input);
+            return numbers.stream()
+                    .filter(num -> num <= MAX_VALUE)
+                    .mapToInt(Integer::intValue)
+                    .sum();
+        } catch (InputException e) {
+            throw e;
         }
     }
 
-    private int addWithCustomDelimiter(String input, InputParser.ParseResult parseResult) {
+    private static List<Integer> extractAndValidateNumbers(String input) {
+        CalculationData calculationData = parseInputToData(input);
+
+        if (!input.startsWith("//")) {
+            validateEndSeparator(calculationData);
+        }
+
+        if (calculationData.delimiter().equals(Delimiters.COMMA + "|" + Delimiters.NEWLINE)) {
+            return sumTokens(parseTokens(calculationData));
+        } else {
+            return addWithCustomDelimiter(input, calculationData);
+        }
+    }
+
+    private static CalculationData parseInputToData(String input) {
+        if (input.startsWith("//")) {
+            InputParser.ParseResult parseResult = InputParser.parseInput(input);
+            return new CalculationData(input, parseResult.getCustomDelimiter());
+        } else {
+            return new CalculationData(input, Delimiters.COMMA + "|" + Delimiters.NEWLINE);
+        }
+    }
+
+    private static void validateEndSeparator(CalculationData calculationData) {
+        String input = calculationData.input();
+        if (input.endsWith(Delimiters.COMMA) || input.endsWith(Delimiters.NEWLINE)) {
+            throw new InputException("Separator at end not allowed");
+        }
+    }
+
+    private static List<String> parseTokens(CalculationData calculationData) {
+        String input = calculationData.input();
+        return java.util.Arrays.asList(input.split(calculationData.delimiter()));
+    }
+
+    private static List<Integer> addWithCustomDelimiter(String input, CalculationData calculationData) {
         int newlineIdx = input.indexOf('\n');
-        String delimiter = parseResult.getCustomDelimiter();
+        String delimiter = calculationData.delimiter();
         String numbersPart = input.substring(newlineIdx + 1);
 
         if (numbersPart.endsWith(delimiter)) {
@@ -59,10 +91,11 @@ class StringCalculator {
             throw new InputException(String.join("\n", errorMessages));
         }
 
+        InputParser.ParseResult parseResult = InputParser.parseInput(input);
         return sumTokens(parseResult.getTokens());
     }
 
-    private String findDelimiterMisuseMessage(String numbers, String delimiter) {
+    private static String findDelimiterMisuseMessage(String numbers, String delimiter) {
         for (int i = 0; i < numbers.length(); ) {
             if (numbers.startsWith(delimiter, i)) {
                 i += delimiter.length();
@@ -78,7 +111,7 @@ class StringCalculator {
         return null;
     }
 
-    private List<Integer> extractNegatives(String numbers) {
+    private static List<Integer> extractNegatives(String numbers) {
         List<Integer> negatives = new ArrayList<>();
         Matcher m = NEGATIVE_PATTERN.matcher(numbers);
         while (m.find()) {
@@ -87,14 +120,14 @@ class StringCalculator {
         return negatives;
     }
 
-    private String buildNegativesMessage(List<Integer> negatives) {
+    private static String buildNegativesMessage(List<Integer> negatives) {
         return "Negative number(s) not allowed: " + negatives.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
     }
 
-    private int sumTokens(List<String> tokens) {
-        int sum = 0;
+    private static List<Integer> sumTokens(List<String> tokens) {
+        List<Integer> numbers = new ArrayList<>();
         List<Integer> negatives = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
 
@@ -108,8 +141,8 @@ class StringCalculator {
 
             if (value < 0) {
                 negatives.add(value);
-            } else if (value <= Delimiters.MAX_VALUE) {
-                sum += value;
+            } else {
+                numbers.add(value);
             }
         }
 
@@ -121,6 +154,6 @@ class StringCalculator {
             throw new InputException(String.join("\n", errorMessages));
         }
 
-        return sum;
+        return numbers;
     }
 }
