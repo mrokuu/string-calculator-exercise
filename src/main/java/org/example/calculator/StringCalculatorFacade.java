@@ -1,9 +1,9 @@
-package org.example;
+package org.example.calculator;
 
 import java.util.Arrays;
 import java.util.List;
 
-class StringCalculator {
+public class StringCalculatorFacade {
     private static final int MAX_VALUE = 1000;
 
     public int add(String... args) {

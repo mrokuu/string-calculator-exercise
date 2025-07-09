@@ -1,4 +1,6 @@
-package org.example;
+package org.example.calculator;
+
+import org.example.calculator.exceptions.InputException;
 
 class CustomDelimiterService {
     private static final String DELIMITER_PREFIX = "//";

@@ -1,4 +1,6 @@
-package org.example;
+package org.example.calculator;
+
+import org.example.calculator.exceptions.InputException;
 
 import java.util.ArrayList;
 import java.util.List;

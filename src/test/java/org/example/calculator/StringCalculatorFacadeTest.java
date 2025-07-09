@@ -1,6 +1,7 @@
-package org.example;
+package org.example.calculator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.calculator.exceptions.InputException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,13 +15,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class StringCalculatorTest {
+class StringCalculatorFacadeTest {
 
-    private StringCalculator calc;
+    private StringCalculatorFacade calc;
 
     @BeforeEach
     void setUp() {
-        calc = new StringCalculator();
+        calc = new StringCalculatorFacade();
     }
 
     @Test

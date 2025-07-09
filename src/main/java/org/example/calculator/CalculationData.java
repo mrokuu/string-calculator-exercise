@@ -1,4 +1,4 @@
-package org.example;
+package org.example.calculator;
 
 record CalculationData(String input, String delimiter) {
 }
