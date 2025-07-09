@@ -95,7 +95,7 @@ class StringCalculatorFacadeTest {
         // when / then
         assertThatThrownBy(() -> calc.add(input))
                 .isInstanceOf(InputException.class)
-                .hasMessageContaining(ErrorMessages.TRAILING_SEPARATOR);
+                .hasMessageContaining(InputErrorMessages.TRAILING_SEPARATOR);
     }
 
     @Test
@@ -104,7 +104,7 @@ class StringCalculatorFacadeTest {
         // when / then
         assertThatThrownBy(() -> calc.add("2,\n3"))
                 .isInstanceOf(InputException.class)
-                .hasMessageContaining(ErrorMessages.TRAILING_SEPARATOR);
+                .hasMessageContaining(InputErrorMessages.TRAILING_SEPARATOR);
     }
 
     @Test

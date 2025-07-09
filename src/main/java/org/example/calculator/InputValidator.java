@@ -8,7 +8,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-class InputValidationService {
+class InputValidator {
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
     public static void validateInputFormat(ParsedData parsedData) {
@@ -29,7 +29,7 @@ class InputValidationService {
                 .toList();
 
         if (!negatives.isEmpty()) {
-            String message = ErrorMessages.NEGATIVE_NUMBERS_PREFIX +
+            String message = InputErrorMessages.NEGATIVE_NUMBERS_PREFIX +
                     negatives.stream()
                             .map(Object::toString)
                             .collect(Collectors.joining(", "));
@@ -41,13 +41,13 @@ class InputValidationService {
         String input = parsedData.input();
         String delimiter = parsedData.delimiter();
 
-        if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
-            if (input.endsWith(DelimiterService.COMMA) || input.endsWith(DelimiterService.NEWLINE)) {
-                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
+        if (DelimiterParser.DEFAULT_DELIMITERS.equals(delimiter)) {
+            if (input.endsWith(DelimiterParser.COMMA) || input.endsWith(DelimiterParser.NEWLINE)) {
+                errorMessages.add(InputErrorMessages.TRAILING_SEPARATOR);
             }
         } else {
             if (input.endsWith(delimiter)) {
-                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
+                errorMessages.add(InputErrorMessages.TRAILING_SEPARATOR);
             }
         }
     }
@@ -56,9 +56,9 @@ class InputValidationService {
         String input = parsedData.input();
         String delimiter = parsedData.delimiter();
 
-        if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
-            if (input.contains(DelimiterService.COMMA + DelimiterService.NEWLINE)) {
-                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
+        if (DelimiterParser.DEFAULT_DELIMITERS.equals(delimiter)) {
+            if (input.contains(DelimiterParser.COMMA + DelimiterParser.NEWLINE)) {
+                errorMessages.add(InputErrorMessages.TRAILING_SEPARATOR);
             }
         }
     }
@@ -67,9 +67,9 @@ class InputValidationService {
         String input = parsedData.input();
         String delimiter = parsedData.delimiter();
 
-        if (!DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
+        if (!DelimiterParser.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.contains(delimiter + delimiter)) {
-                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
+                errorMessages.add(InputErrorMessages.TRAILING_SEPARATOR);
             }
 
             String delimiterError = findDelimiterMismatch(input, delimiter);
@@ -79,7 +79,7 @@ class InputValidationService {
 
             List<Integer> negatives = extractNegativeNumbers(input);
             if (!negatives.isEmpty()) {
-                String negativeMessage = ErrorMessages.NEGATIVE_NUMBERS_PREFIX +
+                String negativeMessage = InputErrorMessages.NEGATIVE_NUMBERS_PREFIX +
                         negatives.stream()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(", "));

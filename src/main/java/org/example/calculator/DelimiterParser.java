@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-class DelimiterService {
+class DelimiterParser {
     public static final String DEFAULT_DELIMITERS = ",|\n";
     public static final String COMMA = ",";
     public static final String NEWLINE = "\n";

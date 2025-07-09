@@ -2,7 +2,7 @@ package org.example.calculator;
 
 import org.example.calculator.exceptions.InputException;
 
-class CustomDelimiterService {
+class CustomDelimiterParser {
     private static final String DELIMITER_PREFIX = "//";
     private static final String DELIMITER_SUFFIX = "\n";
 

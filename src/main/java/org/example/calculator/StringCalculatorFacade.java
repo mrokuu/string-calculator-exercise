@@ -27,17 +27,17 @@ public class StringCalculatorFacade {
     private List<Integer> extractAndValidateNumbers(String input) {
         ParsedData parsedData = parseInput(input);
 
-        InputValidationService.validateInputFormat(parsedData);
-        List<Integer> numbers = DelimiterService.extractNumbers(parsedData);
-        InputValidationService.validateNegativeNumbers(numbers);
+        InputValidator.validateInputFormat(parsedData);
+        List<Integer> numbers = DelimiterParser.extractNumbers(parsedData);
+        InputValidator.validateNegativeNumbers(numbers);
 
         return numbers;
     }
 
     private ParsedData parseInput(String input) {
-        if (CustomDelimiterService.hasCustomDelimiter(input)) {
-            return CustomDelimiterService.parseCustomDelimiter(input);
+        if (CustomDelimiterParser.hasCustomDelimiter(input)) {
+            return CustomDelimiterParser.parseCustomDelimiter(input);
         }
-        return new ParsedData(input, DelimiterService.DEFAULT_DELIMITERS);
+        return new ParsedData(input, DelimiterParser.DEFAULT_DELIMITERS);
     }
 }
