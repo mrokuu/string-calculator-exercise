@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 class InputValidationService {
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
-    public static void validateInputFormat(CalculationData calculationData) {
+    public static void validateInputFormat(ParsedData parsedData) {
         List<String> errorMessages = new ArrayList<>();
 
-        validateEndSeparator(calculationData, errorMessages);
-        validateMixedSeparator(calculationData, errorMessages);
-        validateDelimiterConsistency(calculationData, errorMessages);
+        validateEndSeparator(parsedData, errorMessages);
+        validateMixedSeparator(parsedData, errorMessages);
+        validateDelimiterConsistency(parsedData, errorMessages);
 
         if (!errorMessages.isEmpty()) {
             throw new InputException(String.join("\n", errorMessages));
@@ -29,7 +29,7 @@ class InputValidationService {
                 .toList();
 
         if (!negatives.isEmpty()) {
-            String message = "Negative number(s) not allowed: " +
+            String message = ErrorMessages.NEGATIVE_NUMBERS_PREFIX +
                     negatives.stream()
                             .map(Object::toString)
                             .collect(Collectors.joining(", "));
@@ -37,39 +37,39 @@ class InputValidationService {
         }
     }
 
-    private static void validateEndSeparator(CalculationData calculationData, List<String> errorMessages) {
-        String input = calculationData.input();
-        String delimiter = calculationData.delimiter();
+    private static void validateEndSeparator(ParsedData parsedData, List<String> errorMessages) {
+        String input = parsedData.input();
+        String delimiter = parsedData.delimiter();
 
         if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.endsWith(DelimiterService.COMMA) || input.endsWith(DelimiterService.NEWLINE)) {
-                errorMessages.add("Separator at end not allowed");
+                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
             }
         } else {
             if (input.endsWith(delimiter)) {
-                errorMessages.add("Separator at end not allowed");
+                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
             }
         }
     }
 
-    private static void validateMixedSeparator(CalculationData calculationData, List<String> errorMessages) {
-        String input = calculationData.input();
-        String delimiter = calculationData.delimiter();
+    private static void validateMixedSeparator(ParsedData parsedData, List<String> errorMessages) {
+        String input = parsedData.input();
+        String delimiter = parsedData.delimiter();
 
         if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.contains(DelimiterService.COMMA + DelimiterService.NEWLINE)) {
-                errorMessages.add("Separator at end not allowed");
+                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
             }
         }
     }
 
-    private static void validateDelimiterConsistency(CalculationData calculationData, List<String> errorMessages) {
-        String input = calculationData.input();
-        String delimiter = calculationData.delimiter();
+    private static void validateDelimiterConsistency(ParsedData parsedData, List<String> errorMessages) {
+        String input = parsedData.input();
+        String delimiter = parsedData.delimiter();
 
         if (!DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.contains(delimiter + delimiter)) {
-                errorMessages.add("Separator at end not allowed");
+                errorMessages.add(ErrorMessages.TRAILING_SEPARATOR);
             }
 
             String delimiterError = findDelimiterMismatch(input, delimiter);
@@ -79,7 +79,7 @@ class InputValidationService {
 
             List<Integer> negatives = extractNegativeNumbers(input);
             if (!negatives.isEmpty()) {
-                String negativeMessage = "Negative number(s) not allowed: " +
+                String negativeMessage = ErrorMessages.NEGATIVE_NUMBERS_PREFIX +
                         negatives.stream()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(", "));

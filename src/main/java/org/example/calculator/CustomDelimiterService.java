@@ -10,7 +10,7 @@ class CustomDelimiterService {
         return input.startsWith(DELIMITER_PREFIX) && input.contains(DELIMITER_SUFFIX);
     }
 
-    public static CalculationData parseCustomDelimiter(String input) {
+    public static ParsedData parseCustomDelimiter(String input) {
         int newlineIndex = input.indexOf(DELIMITER_SUFFIX);
 
         if (newlineIndex == -1) {
@@ -20,7 +20,7 @@ class CustomDelimiterService {
         String delimiter = extractDelimiter(input, newlineIndex);
         String numbersInput = extractNumbersInput(input, newlineIndex);
 
-        return new CalculationData(numbersInput, delimiter);
+        return new ParsedData(numbersInput, delimiter);
     }
 
     private static String extractDelimiter(String input, int newlineIndex) {

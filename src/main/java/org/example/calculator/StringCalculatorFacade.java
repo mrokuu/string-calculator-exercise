@@ -25,19 +25,19 @@ public class StringCalculatorFacade {
     }
 
     private List<Integer> extractAndValidateNumbers(String input) {
-        CalculationData calculationData = parseInput(input);
+        ParsedData parsedData = parseInput(input);
 
-        InputValidationService.validateInputFormat(calculationData);
-        List<Integer> numbers = DelimiterService.extractNumbers(calculationData);
+        InputValidationService.validateInputFormat(parsedData);
+        List<Integer> numbers = DelimiterService.extractNumbers(parsedData);
         InputValidationService.validateNegativeNumbers(numbers);
 
         return numbers;
     }
 
-    private CalculationData parseInput(String input) {
+    private ParsedData parseInput(String input) {
         if (CustomDelimiterService.hasCustomDelimiter(input)) {
             return CustomDelimiterService.parseCustomDelimiter(input);
         }
-        return new CalculationData(input, DelimiterService.DEFAULT_DELIMITERS);
+        return new ParsedData(input, DelimiterService.DEFAULT_DELIMITERS);
     }
 }

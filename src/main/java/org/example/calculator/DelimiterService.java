@@ -9,8 +9,8 @@ class DelimiterService {
     public static final String COMMA = ",";
     public static final String NEWLINE = "\n";
 
-    public static List<Integer> extractNumbers(CalculationData calculationData) {
-        String[] tokens = splitByDelimiter(calculationData);
+    public static List<Integer> extractNumbers(ParsedData parsedData) {
+        String[] tokens = splitByDelimiter(parsedData);
 
         return Arrays.stream(tokens)
                 .filter(token -> !token.trim().isEmpty())
@@ -19,9 +19,9 @@ class DelimiterService {
                 .toList();
     }
 
-    private static String[] splitByDelimiter(CalculationData calculationData) {
-        String delimiter = calculationData.delimiter();
-        String input = calculationData.input();
+    private static String[] splitByDelimiter(ParsedData parsedData) {
+        String delimiter = parsedData.delimiter();
+        String input = parsedData.input();
 
         if (DEFAULT_DELIMITERS.equals(delimiter)) {
             return input.split(DEFAULT_DELIMITERS);
