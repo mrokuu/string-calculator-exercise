@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -87,7 +87,7 @@ class InputValidationService {
     }
 
     private static String findDelimiterMismatch(String input, String delimiter) {
-        for (int i = 0; i < input.length();) {
+        for (int i = 0; i < input.length(); ) {
             if (input.startsWith(delimiter, i)) {
                 i += delimiter.length();
                 continue;
@@ -105,13 +105,10 @@ class InputValidationService {
     }
 
     private static List<Integer> extractNegativeNumbers(String input) {
-        List<Integer> negatives = new ArrayList<>();
-        Matcher matcher = NEGATIVE_PATTERN.matcher(input);
-
-        while (matcher.find()) {
-            negatives.add(Integer.parseInt(matcher.group()));
-        }
-
-        return negatives;
+        return NEGATIVE_PATTERN.matcher(input)
+                .results()
+                .map(MatchResult::group)
+                .map(Integer::parseInt)
+                .toList();
     }
 }

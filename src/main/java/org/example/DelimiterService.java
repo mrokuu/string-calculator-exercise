@@ -3,7 +3,6 @@ package org.example;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 class DelimiterService {
     public static final String DEFAULT_DELIMITERS = ",|\n";
