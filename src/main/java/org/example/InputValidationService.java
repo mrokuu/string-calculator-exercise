@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class InputValidationService {
-
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("-\\d+");
 
     public static void validateInputFormat(CalculationData calculationData) {
@@ -30,8 +30,7 @@ class InputValidationService {
             String message = "Negative number(s) not allowed: " +
                     negatives.stream()
                             .map(Object::toString)
-                            .reduce((a, b) -> a + ", " + b)
-                            .orElse("");
+                            .collect(Collectors.joining(", "));
             throw new InputException(message);
         }
     }
@@ -40,7 +39,7 @@ class InputValidationService {
         String input = calculationData.input();
         String delimiter = calculationData.delimiter();
 
-        if (delimiter.equals(DelimiterService.DEFAULT_DELIMITERS)) {
+        if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.endsWith(DelimiterService.COMMA) || input.endsWith(DelimiterService.NEWLINE)) {
                 errorMessages.add("Separator at end not allowed");
             }
@@ -55,7 +54,7 @@ class InputValidationService {
         String input = calculationData.input();
         String delimiter = calculationData.delimiter();
 
-        if (delimiter.equals(DelimiterService.DEFAULT_DELIMITERS)) {
+        if (DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.contains(DelimiterService.COMMA + DelimiterService.NEWLINE)) {
                 errorMessages.add("Separator at end not allowed");
             }
@@ -66,7 +65,7 @@ class InputValidationService {
         String input = calculationData.input();
         String delimiter = calculationData.delimiter();
 
-        if (!delimiter.equals(DelimiterService.DEFAULT_DELIMITERS)) {
+        if (!DelimiterService.DEFAULT_DELIMITERS.equals(delimiter)) {
             if (input.contains(delimiter + delimiter)) {
                 errorMessages.add("Separator at end not allowed");
             }
@@ -81,8 +80,7 @@ class InputValidationService {
                 String negativeMessage = "Negative number(s) not allowed: " +
                         negatives.stream()
                                 .map(Object::toString)
-                                .reduce((a, b) -> a + ", " + b)
-                                .orElse("");
+                                .collect(Collectors.joining(", "));
                 errorMessages.add(0, negativeMessage);
             }
         }

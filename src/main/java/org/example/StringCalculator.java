@@ -4,29 +4,27 @@ import java.util.Arrays;
 import java.util.List;
 
 class StringCalculator {
-
     private static final int MAX_VALUE = 1000;
 
     public int add(String... args) {
-        return Arrays.stream(args).mapToInt(this::add).sum();
+        return Arrays.stream(args)
+                .mapToInt(this::add)
+                .sum();
     }
+
     public int add(String input) {
         if (input == null || input.trim().isEmpty()) {
             return 0;
         }
 
-        try {
-            List<Integer> numbers = extractAndValidateNumbers(input);
-            return numbers.stream()
-                    .filter(num -> num <= MAX_VALUE)
-                    .mapToInt(Integer::intValue)
-                    .sum();
-        } catch (InputException e) {
-            throw e;
-        }
+        List<Integer> numbers = extractAndValidateNumbers(input);
+        return numbers.stream()
+                .filter(num -> num <= MAX_VALUE)
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
-    private static List<Integer> extractAndValidateNumbers(String input) {
+    private List<Integer> extractAndValidateNumbers(String input) {
         CalculationData calculationData = parseInput(input);
 
         InputValidationService.validateInputFormat(calculationData);
@@ -36,7 +34,7 @@ class StringCalculator {
         return numbers;
     }
 
-    private static CalculationData parseInput(String input) {
+    private CalculationData parseInput(String input) {
         if (CustomDelimiterService.hasCustomDelimiter(input)) {
             return CustomDelimiterService.parseCustomDelimiter(input);
         }

@@ -1,7 +1,6 @@
 package org.example;
 
 class CustomDelimiterService {
-
     private static final String DELIMITER_PREFIX = "//";
     private static final String DELIMITER_SUFFIX = "\n";
 

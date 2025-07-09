@@ -3,9 +3,9 @@ package org.example;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class DelimiterService {
-
     public static final String DEFAULT_DELIMITERS = ",|\n";
     public static final String COMMA = ",";
     public static final String NEWLINE = "\n";
@@ -24,7 +24,7 @@ class DelimiterService {
         String delimiter = calculationData.delimiter();
         String input = calculationData.input();
 
-        if (delimiter.equals(DEFAULT_DELIMITERS)) {
+        if (DEFAULT_DELIMITERS.equals(delimiter)) {
             return input.split(DEFAULT_DELIMITERS);
         } else {
             String escapedDelimiter = Pattern.quote(delimiter);
